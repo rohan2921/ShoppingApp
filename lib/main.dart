@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import './screens/cart_screen.dart';
+import './providers/cart.dart';
 import './screens/products_overveiw_screen.dart';
 import './providers/products.dart';
 import './screens/product_detail_screen.dart';
+import './providers/orders.dart';
+import './screens/OrdersScreen.dart';
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -24,8 +28,16 @@ final MaterialColor swatch=MaterialColor(0xFFFFFFE0,color);
   
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-        create: (ctx)=> Products(),
+    return MultiProvider(
+      providers:[
+        ChangeNotifierProvider(
+          create: (ctx)=> Products()),
+        ChangeNotifierProvider(
+          create: (ctx)=>Cart()),
+        ChangeNotifierProvider(create: (ctx)=>
+        Orders()
+        )
+        ],
           child: MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
@@ -33,10 +45,13 @@ final MaterialColor swatch=MaterialColor(0xFFFFFFE0,color);
           primarySwatch: swatch,
           primaryColor: Color.fromRGBO(255,255,153,1),
           fontFamily: 'Lato',
+          errorColor: Colors.red,
         ),
         home: ProductsOverVeiwCsreen(),
         routes: {
           ProductDetailScreen.routeName:(ctx)=> ProductDetailScreen(),
+          CartScreen.routeName:(ctx)=>CartScreen(),
+          OrdersScreen.routeName:(ctx)=>OrdersScreen(),
         },
       ),
     );
