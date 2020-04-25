@@ -1,46 +1,44 @@
 import 'package:flutter/material.dart';
-
+import 'package:provider/provider.dart';
+import './screens/products_overveiw_screen.dart';
+import './providers/products.dart';
+import './screens/product_detail_screen.dart';
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
+ static final  Map<int, Color> color =
+{
+50:Color.fromRGBO(225,225,204, .1),
+100:Color.fromRGBO(225,225,153, .2),
+200:Color.fromRGBO(255,255,102, .3),
+300:Color.fromRGBO(255,255,51, .4),
+400:Color.fromRGBO(255,255,0, .5),
+500:Color.fromRGBO(255,255,0, .6),
+600:Color.fromRGBO(204,204,0, .7),
+700:Color.fromRGBO(153,153,0, .8),
+800:Color.fromRGBO(102,102,0, .9),
+900:Color.fromRGBO(51,51,0, 1),
+
+};
+final MaterialColor swatch=MaterialColor(0xFFFFFFE0,color);
   
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        
-        primarySwatch: Colors.blue,
+    return ChangeNotifierProvider(
+        create: (ctx)=> Products(),
+          child: MaterialApp(
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          accentColor: Colors.yellow[100],
+          primarySwatch: swatch,
+          primaryColor: Color.fromRGBO(255,255,153,1),
+          fontFamily: 'Lato',
+        ),
+        home: ProductsOverVeiwCsreen(),
+        routes: {
+          ProductDetailScreen.routeName:(ctx)=> ProductDetailScreen(),
+        },
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-
-  final String title;
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  
-
-  @override
-  Widget build(BuildContext context) {
-    
-    return Scaffold(
-      appBar: AppBar(
-        
-        title: Text(widget.title),
-      ),
-      body: Center(
-       child: Text('Hello'),
-      )
     );
   }
 }
