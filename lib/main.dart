@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import './screens/edit_product_screen.dart';
+import './screens/user_product_screen.dart';
 import './screens/cart_screen.dart';
 import './providers/cart.dart';
 import './screens/products_overveiw_screen.dart';
@@ -52,6 +54,8 @@ final MaterialColor swatch=MaterialColor(0xFFFFFFE0,color);
           ProductDetailScreen.routeName:(ctx)=> ProductDetailScreen(),
           CartScreen.routeName:(ctx)=>CartScreen(),
           OrdersScreen.routeName:(ctx)=>OrdersScreen(),
+          UserProductScreen.routeName:(ctx)=>UserProductScreen(),
+          EditProductScreen.routeName:(ctx)=>EditProductScreen(),
         },
       ),
     );

@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 class CartItem {
   final String id;
   final String title;
-   int quantity;
+  int quantity;
   final double amount;
   CartItem(
       {@required this.id,
@@ -13,19 +13,20 @@ class CartItem {
 }
 
 class Cart with ChangeNotifier {
-  Map<String, CartItem> _item={};
+  Map<String, CartItem> _item = {};
 
   Map<String, CartItem> get item {
     return {..._item};
   }
 
-  int get size{
+  int get size {
     return _item.length;
   }
-  double get totalAmount{
-    var tot=0.0;
-    _item.forEach((key,item){
-        tot+=item.amount*item.quantity;
+
+  double get totalAmount {
+    var tot = 0.0;
+    _item.forEach((key, item) {
+      tot += item.amount * item.quantity;
     });
     return tot;
   }
@@ -49,18 +50,35 @@ class Cart with ChangeNotifier {
               amount: amount));
     }
   }
-  void deleteItem(String pid,String id){
 
-    if(_item[pid].quantity==1){
-        _item.remove(pid);
+  void removeSingleItem(String id) {
+
+    if(!_item.containsKey(id)) return;
+    if (_item[id].quantity > 1) {
+      _item.update(
+          id,
+          (existing) => CartItem(
+              id: _item[id].id,
+              title: _item[id].title,
+              quantity: _item[id].quantity - 1,
+              amount: _item[id].amount));
     }else{
-        _item[pid].quantity=_item[pid].quantity-1;
+      _item.remove(id);
     }
     notifyListeners();
-
   }
-  void clearOrders(){
-    _item={};
+
+  void deleteItem(String pid, String id) {
+    if (_item[pid].quantity == 1) {
+      _item.remove(pid);
+    } else {
+      _item[pid].quantity = _item[pid].quantity - 1;
+    }
+    notifyListeners();
+  }
+
+  void clearOrders() {
+    _item = {};
     notifyListeners();
   }
 }

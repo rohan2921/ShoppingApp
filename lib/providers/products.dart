@@ -47,9 +47,19 @@ class Products with ChangeNotifier{
     return _items.where((test)=>test.isFavourite==true).toList();
   }
 
-  void addProduct(){
-   // _items.add(value);
+  void addProduct(Product value){
+    var p=Product(id: DateTime.now().toString(),price: value.price,description: value.description,imageUrl: value.imageUrl,title: value.title);
+    _items.add(p);
     notifyListeners();
+  }
+  void updateProduct(String id,Product p){
+
+    var ind=_items.indexWhere((test)=>test.id==id);
+    if(ind>=0) {
+      _items[ind]=p;
+      notifyListeners();
+    }
+
   }
 
 }

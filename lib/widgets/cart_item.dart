@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shoppingapp/providers/cart.dart';
+
 class CartItem extends StatelessWidget {
   final str = String.fromCharCode(8377);
   final String id;
@@ -20,21 +21,42 @@ class CartItem extends StatelessWidget {
     return Dismissible(
       key: ValueKey(id),
       background: Container(
-          padding: EdgeInsets.all(10),
-          margin: EdgeInsets.symmetric(vertical: 15, horizontal: 4),
-           color: Theme.of(context).errorColor,
-           child: Icon(
-             Icons.delete,
-             size:40,
-             color: Colors.white,
-             ),
-             alignment: Alignment.centerRight,
-      
-           ),
-          direction: DismissDirection.endToStart,
-          onDismissed: (direction){
-              Provider.of<Cart>(context,listen: false).deleteItem(productId,id);
-          },
+        padding: EdgeInsets.all(10),
+        margin: EdgeInsets.symmetric(vertical: 15, horizontal: 4),
+        color: Theme.of(context).errorColor,
+        child: Icon(
+          Icons.delete,
+          size: 40,
+          color: Colors.white,
+        ),
+        alignment: Alignment.centerRight,
+      ),
+      direction: DismissDirection.endToStart,
+      onDismissed: (direction) {
+        Provider.of<Cart>(context, listen: false).deleteItem(productId, id);
+      },
+      confirmDismiss: (direction) {
+        return showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text('Confirm Deletion'),
+            content: Text('Do you really want to delete the item"?'),
+            actions: <Widget>[
+              FlatButton(onPressed: (){
+                Navigator.of(ctx).pop(true);
+                
+              }, child: Text('Yes'),
+              textColor:Colors.red[400],
+              ),
+              FlatButton(onPressed: (){
+                Navigator.of(ctx).pop(false);
+              }, child: Text('No'),
+              textColor:Colors.green[400],
+              ),
+            ],
+          ),
+        );
+      },
       child: Card(
         margin: EdgeInsets.symmetric(vertical: 15, horizontal: 4),
         child: Padding(
