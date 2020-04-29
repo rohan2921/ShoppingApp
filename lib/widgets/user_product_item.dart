@@ -16,6 +16,7 @@ class UserProductItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scc=Scaffold.of(context);
     return Card(
       elevation: 10,
           child: ListTile(
@@ -28,8 +29,13 @@ class UserProductItem extends StatelessWidget {
               FlatButton(onPressed: (){
                 Navigator.of(context).pushNamed(EditProductScreen.routeName,arguments: id);
               }, child: Icon(Icons.edit)),
-              FlatButton(onPressed: (){
-                Provider.of<Products>(context,listen: false).removeProduct(id);
+              FlatButton(onPressed: () async{
+                try{
+                  await Provider.of<Products>(context,listen: false).removeProduct(id);
+                }catch(err){
+                    scc.showSnackBar(SnackBar(content: Text('Cannot Delete')));
+                }
+                
               }, child: Icon(Icons.delete)),
             ],
           ),

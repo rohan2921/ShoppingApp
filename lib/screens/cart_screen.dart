@@ -8,10 +8,16 @@ import '../widgets/cart_item.dart' as ci;
 class CartScreen extends StatelessWidget {
   static const routeName = '/cart-screen';
   final str = String.fromCharCode(8377);
+  var _isInit=true;
+  
+ 
   @override
   Widget build(BuildContext context) {
     final cart = Provider.of<Cart>(context);
-
+    if(_isInit){
+      cart.getAndSetCartItems();
+      _isInit=false;
+    }
     return Scaffold(
       appBar: AppBar(title: Text('Cart Items')),
       body: Column(

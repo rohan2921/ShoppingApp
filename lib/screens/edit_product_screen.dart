@@ -70,9 +70,6 @@ class _EditProductScreenState extends State<EditProductScreen> {
     setState(() {
       isLoading = true;
     });
-    
-
-    
     _formKey.currentState.save();
     if (_emptyProduct.id == null) {
       Provider.of<Products>(context, listen: false)
@@ -155,7 +152,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                           if (value.isEmpty) {
                             return 'please enter price';
                           }
-                          if (double.parse(value) == null ||
+                          if (double.tryParse(value) == null ||
                               double.parse(value) <= 0)
                             return 'Enter valid price';
 

@@ -16,6 +16,8 @@ class CartItem extends StatelessWidget {
     @required this.price,
     @required this.quantity,
   });
+
+  
   @override
   Widget build(BuildContext context) {
     return Dismissible(

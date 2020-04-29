@@ -4,6 +4,7 @@ import '../widgets/app_drawer.dart';
 import '../screens/cart_screen.dart';
 import '../widgets/products_grid.dart';
 import '../widgets/badge.dart';
+import '../providers/products.dart';
 import '../providers/cart.dart';
 
 enum FilterOptins {
@@ -18,6 +19,29 @@ class ProductsOverVeiwCsreen extends StatefulWidget {
 
 class _ProductsOverVeiwCsreenState extends State<ProductsOverVeiwCsreen> {
   var _isFavorites = false;
+  var _isInit=true;
+  var _isLoading=false;
+  @override
+  void didChangeDependencies(){
+    if(_isInit){
+      setState(() {
+        _isLoading=true;
+      });
+      
+        Provider.of<Products>(context).getAndSetProducts().then((_){
+          
+          setState(() {
+            _isLoading=false;
+          });
+        });  
+    }
+    _isInit=false;
+    super.didChangeDependencies();
+  }
+
+      
+    
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,7 +83,7 @@ class _ProductsOverVeiwCsreenState extends State<ProductsOverVeiwCsreen> {
       ),
       backgroundColor: Theme.of(context).accentColor,
       drawer: AppDrawer(),
-      body: ProductGrid(_isFavorites),
+      body:_isLoading?Center(child: CircularProgressIndicator())   : ProductGrid(_isFavorites),
     );
   }
 }

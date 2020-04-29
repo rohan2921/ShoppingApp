@@ -1,4 +1,5 @@
 import 'package:flutter/Material.dart';
+import 'package:shoppingapp/models/http_exception.dart';
 import 'dart:convert';
 import './product.dart';
 import 'package:http/http.dart' as http;
@@ -51,17 +52,45 @@ class Products with ChangeNotifier {
     return _items.where((test) => test.isFavourite == true).toList();
   }
 
-  Future<void> addProduct(Product value) {
-    print('1');
+  Future<void> getAndSetProducts() async{
     const url='https://practiseproject-2b643.firebaseio.com/product.json';
-   return http.post(url,body: json.encode({
-        'id':value.id,
+    
+    try{
+      final response =await http.get(url) ;
+
+      var _dataReceived=json.decode(response.body) as Map<String,dynamic>;
+
+      final List<Product> _recievedList=[];
+      _dataReceived.forEach((pid,product){
+          _recievedList.add(
+            Product(
+            id:pid,
+            description: product['description'],
+            imageUrl: product['imageUrl'],
+            price: product['price'],
+            title: product['title'],
+            isFavourite: product['isFavourite'],
+          ));
+      });
+      _items=_recievedList;
+      notifyListeners();
+    }catch(error){
+      throw error;
+    }
+
+  }
+
+  Future<void> addProduct(Product value) async {
+    
+    const url='https://practiseproject-2b643.firebaseio.com/product.json';
+    try{
+   final response=await http.post(url,body: json.encode({
         'title':value.title,
         'description':value.description,
         'price':value.price,
         'imageUrl':value.imageUrl,
         'isFavourite':value.isFavourite,
-    })).then((response){
+    }));
       
       var p = Product(
         id: json.decode(response.body)['name'],
@@ -71,14 +100,24 @@ class Products with ChangeNotifier {
         title: value.title);
     _items.add(p);
     notifyListeners();
-    }).catchError((errVal){
-        throw errVal;
+    }catch(error){
+      throw error;
     }
-    );
+    
  
   }
 
-  void updateProduct(String id, Product p) {
+  Future<void> updateProduct(String id, Product p) async {
+
+    final url='https://practiseproject-2b643.firebaseio.com/product/$id.json';
+    http.patch(url,body: json.encode({
+        'title':p.title,
+        'description':p.description,
+        'price':p.price,
+        'imageUrl':p.imageUrl,
+        'isFavourite':p.isFavourite,
+    }    
+    ));
     var ind = _items.indexWhere((test) => test.id == id);
     if (ind >= 0) {
       _items[ind] = p;
@@ -86,8 +125,19 @@ class Products with ChangeNotifier {
     }
   }
 
-  void removeProduct(String id) {
-    _items.removeWhere((pd) => pd.id == id);
+  Future<void> removeProduct(String id) async {
+
+    final url='https://practiseproject-2b643.firebaseio.com/product/$id.json';
+    final existingIndex=_items.indexWhere((pd) => pd.id == id);
+    var existingProduct=_items[existingIndex];
+    _items.removeAt(existingIndex);
     notifyListeners();
+    final response= await http.delete(url);
+      if(response.statusCode>=400){
+        _items.insert(existingIndex,existingProduct);
+        notifyListeners();
+          throw HttpException('Could not delete');
+      }
+      existingProduct=null;
   }
 }

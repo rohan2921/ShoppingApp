@@ -1,5 +1,7 @@
-import 'package:flutter/foundation.dart';
+import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 class Product with ChangeNotifier{
   final String id;
   final String title;
@@ -15,8 +17,12 @@ class Product with ChangeNotifier{
     @required this.imageUrl,
     this.isFavourite=false,
   });
-  void addFavourite(){
+  Future<void> addFavourite() async{
     isFavourite=!isFavourite;
+    final url='https://practiseproject-2b643.firebaseio.com/product/$id.json';
+    http.patch(url,body: json.encode({
+      'isFavourite':isFavourite
+    }));
     notifyListeners();
   }
 }
