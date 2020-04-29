@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shoppingapp/providers/products.dart';
 import 'package:shoppingapp/screens/edit_product_screen.dart';
 
 
@@ -26,7 +28,9 @@ class UserProductItem extends StatelessWidget {
               FlatButton(onPressed: (){
                 Navigator.of(context).pushNamed(EditProductScreen.routeName,arguments: id);
               }, child: Icon(Icons.edit)),
-              FlatButton(onPressed: (){}, child: Icon(Icons.delete)),
+              FlatButton(onPressed: (){
+                Provider.of<Products>(context,listen: false).removeProduct(id);
+              }, child: Icon(Icons.delete)),
             ],
           ),
         ),

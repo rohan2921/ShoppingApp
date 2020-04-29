@@ -1,8 +1,10 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/Material.dart';
+import 'dart:convert';
 import './product.dart';
-class Products with ChangeNotifier{
+import 'package:http/http.dart' as http;
 
-  List<Product> _items= [
+class Products with ChangeNotifier {
+  List<Product> _items = [
     Product(
       id: 'p1',
       title: 'Red Shirt',
@@ -37,29 +39,55 @@ class Products with ChangeNotifier{
     ),
   ];
 
-  List<Product> get item{
-    return  [..._items];
-  }
-  Product findById(String id){
-    return _items.firstWhere((test)=> id==test.id);
-  }
-  List<Product> get favItems{
-    return _items.where((test)=>test.isFavourite==true).toList();
+  List<Product> get item {
+    return [..._items];
   }
 
-  void addProduct(Product value){
-    var p=Product(id: DateTime.now().toString(),price: value.price,description: value.description,imageUrl: value.imageUrl,title: value.title);
+  Product findById(String id) {
+    return _items.firstWhere((test) => id == test.id);
+  }
+
+  List<Product> get favItems {
+    return _items.where((test) => test.isFavourite == true).toList();
+  }
+
+  Future<void> addProduct(Product value) {
+    print('1');
+    const url='https://practiseproject-2b643.firebaseio.com/product.json';
+   return http.post(url,body: json.encode({
+        'id':value.id,
+        'title':value.title,
+        'description':value.description,
+        'price':value.price,
+        'imageUrl':value.imageUrl,
+        'isFavourite':value.isFavourite,
+    })).then((response){
+      
+      var p = Product(
+        id: json.decode(response.body)['name'],
+        price: value.price,
+        description: value.description,
+        imageUrl: value.imageUrl,
+        title: value.title);
     _items.add(p);
     notifyListeners();
+    }).catchError((errVal){
+        throw errVal;
+    }
+    );
+ 
   }
-  void updateProduct(String id,Product p){
 
-    var ind=_items.indexWhere((test)=>test.id==id);
-    if(ind>=0) {
-      _items[ind]=p;
+  void updateProduct(String id, Product p) {
+    var ind = _items.indexWhere((test) => test.id == id);
+    if (ind >= 0) {
+      _items[ind] = p;
       notifyListeners();
     }
-
   }
 
+  void removeProduct(String id) {
+    _items.removeWhere((pd) => pd.id == id);
+    notifyListeners();
+  }
 }
