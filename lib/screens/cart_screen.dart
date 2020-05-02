@@ -1,23 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shoppingapp/providers/orders.dart';
-import '../screens/OrdersScreen.dart';
+
 import '../providers/cart.dart';
 import '../widgets/cart_item.dart' as ci;
 
-class CartScreen extends StatelessWidget {
+class CartScreen extends StatefulWidget {
   static const routeName = '/cart-screen';
+
+  @override
+  _CartScreenState createState() => _CartScreenState();
+}
+
+class _CartScreenState extends State<CartScreen> {
   final str = String.fromCharCode(8377);
-  var _isInit=true;
+  
   
  
+
   @override
   Widget build(BuildContext context) {
     final cart = Provider.of<Cart>(context);
-    if(_isInit){
-      cart.getAndSetCartItems();
-      _isInit=false;
-    }
+    
     return Scaffold(
       appBar: AppBar(title: Text('Cart Items')),
       body: Column(
@@ -36,15 +40,7 @@ class CartScreen extends StatelessWidget {
                         backgroundColor: Theme.of(context).primaryColor,
                       ),
                       SizedBox(width: 5),
-                      FlatButton(
-                        onPressed: () {
-                          Provider.of<Orders>(context,listen: false).addOrders(cart.item.values.toList(), cart.totalAmount);
-                          cart.clearOrders();
-                          Navigator.of(context).pushNamed(OrdersScreen.routeName);
-                        },
-                        child: Text('Place Order'),
-                        color: Theme.of(context).primaryColor,
-                      )
+                      OrderButton(cart: cart)
                     ],
                   ))),
           Expanded(
@@ -61,6 +57,39 @@ class CartScreen extends StatelessWidget {
           )),
         ],
       ),
+    );
+  }
+}
+
+class OrderButton extends StatefulWidget {
+  const OrderButton({
+    Key key,
+    @required this.cart,
+  }) : super(key: key);
+
+  final Cart cart;
+
+  @override
+  _OrderButtonState createState() => _OrderButtonState();
+}
+
+class _OrderButtonState extends State<OrderButton> {
+  var _isLoading=false;
+  @override
+  Widget build(BuildContext context) {
+    return _isLoading? CircularProgressIndicator():  FlatButton(
+      onPressed: (widget.cart.totalAmount<=0 ||  _isLoading ) ? null : () {
+        setState(() {
+          _isLoading=true;
+        });
+        Provider.of<Orders>(context,listen: false).addOrders(widget.cart.item.values.toList(), widget.cart.totalAmount);
+        widget.cart.clearOrders();
+        setState(() {
+          _isLoading=false;
+        });
+      },
+      child: Text('Place Order'),
+      color: Theme.of(context).primaryColor,
     );
   }
 }

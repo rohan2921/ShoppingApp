@@ -17,12 +17,23 @@ class Product with ChangeNotifier{
     @required this.imageUrl,
     this.isFavourite=false,
   });
-  Future<void> addFavourite() async{
-    isFavourite=!isFavourite;
-    final url='https://practiseproject-2b643.firebaseio.com/product/$id.json';
-    http.patch(url,body: json.encode({
-      'isFavourite':isFavourite
-    }));
+  Future<void> addFavourite(String requestTo,String userId) async{
+    final oldStatus=isFavourite;
+    isFavourite= (!isFavourite);
     notifyListeners();
+    try{
+    final url='https://practiseproject-2b643.firebaseio.com/isFavourite/$userId/$id.json?auth=$requestTo';
+    final res=await http.put(url,body: json.encode(
+      isFavourite
+    ));
+    
+    if(res.statusCode >=400){
+      isFavourite=oldStatus;
+      notifyListeners();
+    }
+    }catch(error){
+      isFavourite=oldStatus;
+      notifyListeners();
+    }
   }
 }

@@ -27,9 +27,9 @@ class _ProductsOverVeiwCsreenState extends State<ProductsOverVeiwCsreen> {
       setState(() {
         _isLoading=true;
       });
-      
+        Provider.of<Cart>(context).getAndSetCartItems().then((onValue){});
         Provider.of<Products>(context).getAndSetProducts().then((_){
-          
+         
           setState(() {
             _isLoading=false;
           });
@@ -74,7 +74,8 @@ class _ProductsOverVeiwCsreenState extends State<ProductsOverVeiwCsreen> {
             ),
             child:IconButton(
                 icon: Icon(Icons.shopping_cart),
-                onPressed: () {
+
+                onPressed:  Provider.of<Cart>(context).totalAmount<=0 ? null :() {
                     Navigator.of(context).pushNamed(CartScreen.routeName);
                 },
               ),

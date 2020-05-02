@@ -5,41 +5,12 @@ import './product.dart';
 import 'package:http/http.dart' as http;
 
 class Products with ChangeNotifier {
-  List<Product> _items = [
-    Product(
-      id: 'p1',
-      title: 'Red Shirt',
-      description: 'A red shirt - it is pretty red!',
-      price: 350.0,
-      imageUrl:
-          'https://cdn.pixabay.com/photo/2016/10/02/22/17/red-t-shirt-1710578_1280.jpg',
-    ),
-    Product(
-      id: 'p2',
-      title: 'Trousers',
-      description: 'A nice pair of trousers.',
-      price: 559.99,
-      imageUrl:
-          'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Trousers%2C_dress_%28AM_1960.022-8%29.jpg/512px-Trousers%2C_dress_%28AM_1960.022-8%29.jpg',
-    ),
-    Product(
-      id: 'p3',
-      title: 'Yellow Scarf',
-      description: 'Warm and cozy - exactly what you need for the winter.',
-      price: 119.99,
-      imageUrl:
-          'https://live.staticflickr.com/4043/4438260868_cc79b3369d_z.jpg',
-    ),
-    Product(
-      id: 'p4',
-      title: 'A Pan',
-      description: 'Prepare any meal you want.',
-      price: 449.99,
-      imageUrl:
-          'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
-    ),
-  ];
 
+  String _authToken;
+  
+  List<Product> _items = [];
+  String _userId;
+  Products(this._authToken,this._userId,this._items);
   List<Product> get item {
     return [..._items];
   }
@@ -52,14 +23,18 @@ class Products with ChangeNotifier {
     return _items.where((test) => test.isFavourite == true).toList();
   }
 
-  Future<void> getAndSetProducts() async{
-    const url='https://practiseproject-2b643.firebaseio.com/product.json';
+  Future<void> getAndSetProducts([bool filter=false]) async{
+    final filterData= filter?  '&orderBy="creatorId"&equalTo="$_userId"':'';
+    var url='https://practiseproject-2b643.firebaseio.com/product.json?auth=$_authToken$filterData';
     
     try{
       final response =await http.get(url) ;
 
       var _dataReceived=json.decode(response.body) as Map<String,dynamic>;
-
+      if(_dataReceived==null) return;
+      url='https://practiseproject-2b643.firebaseio.com/isFavourite/$_userId.json?auth$_authToken';
+      final response1= await http.get(url);
+      var _favData=json.decode(response1.body);
       final List<Product> _recievedList=[];
       _dataReceived.forEach((pid,product){
           _recievedList.add(
@@ -69,7 +44,7 @@ class Products with ChangeNotifier {
             imageUrl: product['imageUrl'],
             price: product['price'],
             title: product['title'],
-            isFavourite: product['isFavourite'],
+            isFavourite: _favData==null? false:_favData[pid] ?? false,
           ));
       });
       _items=_recievedList;
@@ -82,16 +57,17 @@ class Products with ChangeNotifier {
 
   Future<void> addProduct(Product value) async {
     
-    const url='https://practiseproject-2b643.firebaseio.com/product.json';
+    final url='https://practiseproject-2b643.firebaseio.com/product.json?auth=$_authToken';
+    final url1='https://practiseproject-2b643.firebaseio.com/isFavourite/$_userId/.json?auth=$_authToken';
     try{
    final response=await http.post(url,body: json.encode({
         'title':value.title,
         'description':value.description,
         'price':value.price,
         'imageUrl':value.imageUrl,
-        'isFavourite':value.isFavourite,
+        'creatorId':_userId
     }));
-      
+      await http.post(url1,body:json.encode({json.decode(response.body)['name']:false}));
       var p = Product(
         id: json.decode(response.body)['name'],
         price: value.price,
@@ -109,7 +85,7 @@ class Products with ChangeNotifier {
 
   Future<void> updateProduct(String id, Product p) async {
 
-    final url='https://practiseproject-2b643.firebaseio.com/product/$id.json';
+    final url='https://practiseproject-2b643.firebaseio.com/product/$id.json?auth=$_authToken';
     http.patch(url,body: json.encode({
         'title':p.title,
         'description':p.description,
@@ -127,7 +103,7 @@ class Products with ChangeNotifier {
 
   Future<void> removeProduct(String id) async {
 
-    final url='https://practiseproject-2b643.firebaseio.com/product/$id.json';
+    final url='https://practiseproject-2b643.firebaseio.com/product/$id.json?auth=$_authToken';
     final existingIndex=_items.indexWhere((pd) => pd.id == id);
     var existingProduct=_items[existingIndex];
     _items.removeAt(existingIndex);

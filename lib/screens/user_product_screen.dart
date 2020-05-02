@@ -9,11 +9,11 @@ class UserProductScreen extends StatelessWidget {
    static const routeName='/user-product-screen';
 
    Future<void> _refresh(BuildContext context) async{
-      await Provider.of<Products>(context).getAndSetProducts();
+      await Provider.of<Products>(context,listen: false).getAndSetProducts(true);
    }
   @override
   Widget build(BuildContext context) {
-    final productsData=Provider.of<Products>(context);
+   // final productsData=Provider.of<Products>(context);
     return Scaffold(appBar: AppBar(
       title: const Text('Your Products'),
       actions: <Widget>[
@@ -23,12 +23,20 @@ class UserProductScreen extends StatelessWidget {
        })
       ],
     ),
+    
     drawer: AppDrawer(),
-    body: RefreshIndicator(
-        onRefresh: ()=>_refresh(context),
-          child: ListView.builder(itemBuilder: (ctx,ind){
-            return UserProductItem(productsData.item[ind].id,productsData.item[ind].title,productsData.item[ind].imageUrl);
-      },itemCount: productsData.item.length,),
+    body: FutureBuilder(
+          future: _refresh(context),
+          builder:(ctx,snapshot)=> snapshot.connectionState==ConnectionState.waiting? Center(child:CircularProgressIndicator())
+          :RefreshIndicator(
+          onRefresh: ()=>_refresh(context),
+            child: Consumer<Products>(
+
+                          builder:(ctx,productsData,_)=> ListView.builder(itemBuilder: (ctx,ind){
+                return UserProductItem(productsData.item[ind].id,productsData.item[ind].title,productsData.item[ind].imageUrl);
+        },itemCount: productsData.item.length,),
+            ),
+      ),
     ),
     );
   }
