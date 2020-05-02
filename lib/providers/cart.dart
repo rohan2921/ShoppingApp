@@ -18,7 +18,8 @@ class Cart with ChangeNotifier {
   Map<String, CartItem> _item = {};
 
   final String _token;
-  Cart(this._token,this._item);
+  final String _userId;
+  Cart(this._token,this._userId,this._item);
 
   Map<String, CartItem> get item {
     return {..._item};
@@ -37,7 +38,7 @@ class Cart with ChangeNotifier {
   }
 
   Future<void> getAndSetCartItems() async {
-    final url = 'https://practiseproject-2b643.firebaseio.com/cart.json?auth=$_token';
+    final url = 'https://practiseproject-2b643.firebaseio.com/cart/$_userId.json?auth=$_token';
 
     try {
       final response = await http.get(url);
@@ -64,7 +65,7 @@ class Cart with ChangeNotifier {
   Future addItem(String id, String title, double amount) async {
     if (_item.containsKey(id)) {
       final url =
-          'https://practiseproject-2b643.firebaseio.com/cart/${_item[id].id}.json?auth=$_token';
+          'https://practiseproject-2b643.firebaseio.com/cart/$_userId/${_item[id].id}.json?auth=$_token';
       await http.patch(url,
           body: json.encode({'quantity': _item[id].quantity + 1}));
       _item.update(
@@ -75,7 +76,7 @@ class Cart with ChangeNotifier {
               quantity: existing.quantity + 1,
               amount: existing.amount));
     } else {
-      final url = 'https://practiseproject-2b643.firebaseio.com/cart.json?auth=$_token';
+      final url = 'https://practiseproject-2b643.firebaseio.com/cart/$_userId.json?auth=$_token';
       await http
           .post(url,
               body: json.encode(
@@ -100,7 +101,7 @@ class Cart with ChangeNotifier {
 
     if (_item[id].quantity > 1) {
       final url =
-          'https://practiseproject-2b643.firebaseio.com/cart/${_item[id].id}.json?auth=$_token';
+          'https://practiseproject-2b643.firebaseio.com/cart/$_userId/${_item[id].id}.json?auth=$_token';
       try {
         final response = await http.patch(url,
             body: json.encode({
@@ -118,7 +119,7 @@ class Cart with ChangeNotifier {
       } catch (err) {}
     } else {
       final url =
-          'https://practiseproject-2b643.firebaseio.com/cart/${_item[id].id}.json?auth=$_token';
+          'https://practiseproject-2b643.firebaseio.com/cart/$_userId/${_item[id].id}.json?auth=$_token';
       try {
         final response = await http.delete(url);
         if (response.statusCode >= 400) throw response;
@@ -132,7 +133,7 @@ class Cart with ChangeNotifier {
   Future deleteItem(String pid, String id) async {
     if (_item[pid].quantity == 1) {
       final url =
-          'https://practiseproject-2b643.firebaseio.com/cart/${_item[id].id}.json?auth=$_token';
+          'https://practiseproject-2b643.firebaseio.com/cart/$_userId/${_item[pid].id}.json?auth=$_token';
       try {
         final response = await http.delete(url);
         if (response.statusCode >= 400) throw response;
@@ -143,7 +144,7 @@ class Cart with ChangeNotifier {
       }
     } else {
       final url =
-          'https://practiseproject-2b643.firebaseio.com/cart/${_item[id].id}.json?auth=$_token';
+          'https://practiseproject-2b643.firebaseio.com/cart/$_userId/${_item[pid].id}.json?auth=$_token';
       try {
         final response = await http.patch(url,
             body: json.encode({
@@ -159,7 +160,7 @@ class Cart with ChangeNotifier {
   }
 
   Future clearOrders() async {
-    final url = 'https://practiseproject-2b643.firebaseio.com/cart/.json?auth=$_token';
+    final url = 'https://practiseproject-2b643.firebaseio.com/cart/$_userId/.json?auth=$_token';
     try {
       final response = await http.delete(url);
       _item = {};
